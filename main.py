@@ -129,7 +129,7 @@ class QuizGame:
 
         if score > self.best_score:
             self.best_score = score
-            print(f"\n{YELLOW_BOLD}[현재 최고점] 현재 기준으로 최고점을 달생힜습니다.{RESET}")
+            print(f"\n{YELLOW_BOLD}[현재 최고점] 새로운 최고 점수를 달성했습니다.{RESET}")
             self.save_state()
 
     def add_quiz(self):
