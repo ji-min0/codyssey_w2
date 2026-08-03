@@ -16,13 +16,13 @@ RESET = "\033[0m"
 class QuizGame:
     def __init__(self):
         self.quizzes = []
-        self.best_score = 0
+        self.best_score = None
         self.load_state()
 
     def load_state(self):
         if not os.path.exists(STATE_FILE):
             self.quizzes = get_default_quizzes()
-            self.best_score = 0
+            self.best_score = None
             return
 
         try:
@@ -31,14 +31,15 @@ class QuizGame:
 
             self.quizzes = [Quiz.from_dict(item) for item in data["quizzes"]]
             self.best_score = data["best_score"]
+            score_display = f"{self.best_score}점" if self.best_score is not None else "기록 없음"
             print(
                 f"[안내] 저장된 데이터를 불러왔습니다. "
-                f"(퀴즈 {len(self.quizzes)}개, 최고점수 {self.best_score}점)\n"
+                f"(퀴즈 {len(self.quizzes)}개, 최고점수 {score_display})\n"
             )
         except (json.JSONDecodeError, KeyError, TypeError, ValueError):
             print("[안내] 저장된 데이터가 손상되어 기본 퀴즈 데이터로 초기화합니다.\n")
             self.quizzes = get_default_quizzes()
-            self.best_score = 0
+            self.best_score = None
 
     def save_state(self):
         data = {
@@ -135,7 +136,7 @@ class QuizGame:
         print("=" * 40)
         print(f"{CYAN}[결과] {score}점 - {total}문제 중 {correct_count}문제 정답{RESET}")
 
-        if score > self.best_score:
+        if self.best_score is None or score > self.best_score:
             self.best_score = score
             print(f"\n{YELLOW_BOLD}[현재 최고점] 새로운 최고 점수를 달성했습니다.{RESET}")
             self.save_state()
@@ -163,7 +164,11 @@ class QuizGame:
         print("-" * 40 + "\n")
 
     def show_score(self):
-        print("\n[점수 확인 기능은 준비 중입니다.]\n")
+        if self.best_score is None:
+            print("\n[안내] 아직 퀴즈를 푼 기록이 없습니다.\n")
+            return
+
+        print(f"\n[최고 점수] {self.best_score}점\n")
 
     def run(self):
         while True:
