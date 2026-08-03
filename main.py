@@ -1,6 +1,9 @@
+from quiz_data import get_default_quizzes
+
+
 class QuizGame:
     def __init__(self):
-        self.quizzes = []
+        self.quizzes = get_default_quizzes()
         self.best_score = 0
 
     def show_menu(self):
