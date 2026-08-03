@@ -6,6 +6,12 @@ from quiz_data import get_default_quizzes
 
 STATE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "state.json")
 
+GREEN = "\033[32m"
+RED = "\033[31m"
+CYAN = "\033[36m"
+YELLOW_BOLD = "\033[1;33m"
+RESET = "\033[0m"
+
 
 class QuizGame:
     def __init__(self):
@@ -78,8 +84,53 @@ class QuizGame:
 
             return choice
 
+    def get_answer_choice(self):
+        while True:
+            raw = input("정답 입력: ").strip()
+
+            if not raw:
+                print("[안내] 입력이 없습니다. 1-4 사이의 숫자를 입력하세요.\n")
+                continue
+
+            if not raw.isdigit():
+                print("[안내] 잘못된 입력입니다. 1-4 사이의 숫자를 입력하세요.\n")
+                continue
+
+            answer = int(raw)
+            if answer < 1 or answer > 4:
+                print("[안내] 잘못된 입력입니다. 1-4 사이의 숫자를 입력하세요.\n")
+                continue
+
+            return answer
+
     def play_quiz(self):
-        print("\n[퀴즈 풀기 기능은 준비 중입니다.]\n")
+        if not self.quizzes:
+            print("\n[안내] 등록된 퀴즈가 없습니다.\n")
+            return
+
+        total = len(self.quizzes)
+        print(f"\n[시작] 퀴즈를 시작합니다! (총 {total}문제)\n")
+
+        correct_count = 0
+        for index, quiz in enumerate(self.quizzes, start=1):
+            print("-" * 40)
+            quiz.display(index)
+            print()
+            answer = self.get_answer_choice()
+            if quiz.is_correct(answer):
+                print(f"\n{GREEN}[정답] 정답입니다.{RESET}\n")
+                correct_count += 1
+            else:
+                print(f"\n{RED}[땡] 정답은 {quiz.answer}번입니다.{RESET}\n")
+
+        score = round(correct_count / total * 100)
+        print("=" * 40)
+        print(f"{CYAN}[결과] {score}점 - {total}문제 중 {correct_count}문제 정답{RESET}")
+
+        if score > self.best_score:
+            self.best_score = score
+            print(f"\n{YELLOW_BOLD}[현재 최고점] 현재 기준으로 최고점을 달생힜습니다.{RESET}")
+            self.save_state()
 
     def add_quiz(self):
         print("\n[퀴즈 추가 기능은 준비 중입니다.]\n")
