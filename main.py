@@ -84,9 +84,17 @@ class QuizGame:
 
             return choice
 
-    def get_answer_choice(self):
+    def get_text_input(self, prompt):
         while True:
-            raw = input("정답 입력: ").strip()
+            text = input(prompt).strip()
+            if not text:
+                print("[안내] 입력이 없습니다. 다시 입력해주세요.\n")
+                continue
+            return text
+
+    def get_answer_choice(self, prompt="정답 입력: "):
+        while True:
+            raw = input(prompt).strip()
 
             if not raw:
                 print("[안내] 입력이 없습니다. 1-4 사이의 숫자를 입력하세요.\n")
@@ -129,11 +137,19 @@ class QuizGame:
 
         if score > self.best_score:
             self.best_score = score
-            print(f"\n{YELLOW_BOLD}[현재 최고점] 현재 기준으로 최고점을 달생힜습니다.{RESET}")
+            print(f"\n{YELLOW_BOLD}[현재 최고점] 새로운 최고 점수를 달성했습니다.{RESET}")
             self.save_state()
 
     def add_quiz(self):
-        print("\n[퀴즈 추가 기능은 준비 중입니다.]\n")
+        print("\n[퀴즈 추가]\n")
+
+        question = self.get_text_input("문제를 입력하세요: ")
+        choices = [self.get_text_input(f"선택지 {i}: ") for i in range(1, 5)]
+        answer = self.get_answer_choice("정답 번호 (1-4): ")
+
+        self.quizzes.append(Quiz(question, choices, answer))
+        self.save_state()
+        print("\n[퀴즈가 추가되었습니다.]\n")
 
     def show_quiz_list(self):
         print("\n[퀴즈 목록 기능은 준비 중입니다.]\n")
