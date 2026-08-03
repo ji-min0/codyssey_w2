@@ -1,10 +1,49 @@
+import json
+import os
+
+from quiz import Quiz
 from quiz_data import get_default_quizzes
+
+STATE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "state.json")
 
 
 class QuizGame:
     def __init__(self):
-        self.quizzes = get_default_quizzes()
+        self.quizzes = []
         self.best_score = 0
+        self.load_state()
+
+    def load_state(self):
+        if not os.path.exists(STATE_FILE):
+            self.quizzes = get_default_quizzes()
+            self.best_score = 0
+            return
+
+        try:
+            with open(STATE_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            self.quizzes = [Quiz.from_dict(item) for item in data["quizzes"]]
+            self.best_score = data["best_score"]
+            print(
+                f"[안내] 저장된 데이터를 불러왔습니다. "
+                f"(퀴즈 {len(self.quizzes)}개, 최고점수 {self.best_score}점)\n"
+            )
+        except (json.JSONDecodeError, KeyError, TypeError, ValueError):
+            print("[안내] 저장된 데이터가 손상되어 기본 퀴즈 데이터로 초기화합니다.\n")
+            self.quizzes = get_default_quizzes()
+            self.best_score = 0
+
+    def save_state(self):
+        data = {
+            "quizzes": [quiz.to_dict() for quiz in self.quizzes],
+            "best_score": self.best_score,
+        }
+        try:
+            with open(STATE_FILE, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=4)
+        except OSError:
+            print("[안내] 데이터 저장 중 오류가 발생했습니다.\n")
 
     def show_menu(self):
         print("=" * 40)
@@ -65,6 +104,7 @@ class QuizGame:
             elif choice == 4:
                 self.show_score()
             elif choice == 5:
+                self.save_state()
                 print("\n[ 게임 종료 ]")
                 break
 
@@ -74,6 +114,7 @@ def main():
     try:
         game.run()
     except (EOFError, KeyboardInterrupt):
+        game.save_state()
         print("\n[ 게임 종료 ]")
 
 
