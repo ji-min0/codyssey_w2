@@ -75,3 +75,29 @@ codyssey_w2/
 |---|---|---|
 | `quizzes` | list | 퀴즈 목록. 각 항목은 `question`(문제), `choices`(선택지 4개), `answer`(정답 번호 1~4) |
 | `best_score` | int \| null | 지금까지 기록한 최고 점수. 아직 퀴즈를 푼 적이 없으면 `null` |
+
+## 실행 화면
+
+| 메뉴 | 퀴즈 풀기 |
+|---|---|
+| ![메뉴](docs/screenshots/menu.png) | ![퀴즈 풀기](docs/screenshots/play.png) |
+
+| 퀴즈 추가 | 퀴즈 목록 |
+|---|---|
+| ![퀴즈 추가](docs/screenshots/add_quiz.png) | ![퀴즈 목록](docs/screenshots/quiz_list.png) |
+
+| 점수 확인 | 재실행 후 데이터 유지 |
+|---|---|
+| ![점수 확인](docs/screenshots/score.png) | ![재실행 후 데이터 유지](docs/screenshots/menu_after_play.png) |
+
+프로그램을 종료했다가 다시 실행하면, 저장된 퀴즈 개수와 최고 점수를 불러와 메뉴 상단에 안내합니다. (`menu_after_play.png`)
+
+### Git 커밋 히스토리
+
+![git log graph](docs/screenshots/git_log_graph.png)
+
+## 개발 환경
+
+| Python / Git 버전 | Git 설정 (`git config --list`) |
+|---|---|
+| ![Python, Git 버전](docs/screenshots/python_git_version.png) | ![Git 설정](docs/screenshots/git_config_--list.png) |
