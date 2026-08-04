@@ -92,6 +92,12 @@ codyssey_w2/
 
 프로그램을 종료했다가 다시 실행하면, 저장된 퀴즈 개수와 최고 점수를 불러와 메뉴 상단에 안내합니다. (`menu_after_play.png`)
 
+### 잘못된 입력 처리
+
+![잘못된 입력 처리](docs/screenshots/input_handling.png)
+
+범위 밖 숫자(`9`), 숫자 변환 실패(`a`), 빈 입력, `Ctrl+C` 순으로 안내 메시지 출력 후 재입력 또는 안전 종료되는 것을 확인할 수 있습니다.
+
 ### Git 커밋 히스토리
 
 ![git log graph](docs/screenshots/git_log_graph.png)
