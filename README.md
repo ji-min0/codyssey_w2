@@ -76,6 +76,108 @@ codyssey_w2/
 | `quizzes` | list | 퀴즈 목록. 각 항목은 `question`(문제), `choices`(선택지 4개), `answer`(정답 번호 1~4) |
 | `best_score` | int \| null | 지금까지 기록한 최고 점수. 아직 퀴즈를 푼 적이 없으면 `null` |
 
+## 설계 노트
+
+### 클래스로 구조화한 이유
+
+퀴즈 하나(`Quiz`)와 게임 전체 흐름(`QuizGame`)은 책임이 다릅니다. 
+- `Quiz`는 문제·선택지·정답이라는 데이터와 "정답인지 확인한다"는 동작을 하나로 묶어 관리하고, 
+- `QuizGame`은 메뉴 진행·입력 처리·파일 저장 같은 게임 운영을 담당합니다.
+
+함수와 전역 변수로만 작성하면 퀴즈 개수가 늘어나거나 상태(퀴즈 목록, 최고 점수)가 여러 함수에 걸쳐 공유될 때 어떤 함수가 무엇을 바꾸는지 추적하기 어려워집니다. 클래스로 나누면 각 객체가 자신의 데이터를 스스로 책임지므로(캡슐화) 기능을 추가할 때 영향 범위를 좁힐 수 있습니다.
+
+### state.json(JSON)을 쓴 이유
+
+퀴즈 데이터와 최고 점수는 구조가 단순(리스트 + 몇 개의 필드)해서 별도 DB 없이도 충분하고, JSON은 Python 표준 라이브러리(`json`)만으로 읽고 쓸 수 있어 외부 의존성이 없습니다. 텍스트 기반이라 파일을 직접 열어 값을 확인·수정하기도 쉽고, `dict`/`list`와 구조가 그대로 대응돼 `Quiz.to_dict()` / `Quiz.from_dict()`로 변환이 단순해집니다.
+
+### 확장성 및 백업에 대한 고려
+
+현재는 퀴즈를 리스트 순회(`O(n)`)로 다루기 때문에 수백~수천 개 규모까지는 문제가 없지만, 훨씬 커지면(수만 개 이상) 검색·중복 체크 비용이 늘어날 수 있습니다. 이 경우 인덱싱이 가능한 SQLite 등으로 옮기는 것을 고려할 수 있습니다. 또한 현재 `save_state()`는 기존 `state.json`을 바로 덮어쓰는 방식이라 쓰기 도중 오류가 나면 데이터가 손실될 수 있습니다. 향후 개선한다면 임시 파일에 먼저 쓰고 정상적으로 저장된 뒤 교체(atomic write)하거나, 저장 전 `state.json.bak`으로 이전 버전을 남기는 방식을 추가할 수 있습니다.
+
+## Git 작업 방식
+
+### 원격 저장소
+
+- GitHub: https://github.com/ji-min0/codyssey_w2
+- 기본 브랜치: `main`
+
+### 커밋 메시지 규칙
+
+기능 단위로 커밋하며, 접두사로 변경 종류를 구분합니다.
+
+- `feat:` 새로운 기능 추가 (예: `feat: 퀴즈 풀기 기능 구현`)
+- `fix:` 버그 수정 (예: `fix: 최고 점수 갱신 메시지 오타 수정`)
+- `docs:` 문서 변경 (예: `docs: README 작성`)
+- `chore:` 부수적인 설정 변경 (예: `chore: state.json을 .gitignore에 추가`)
+
+### 브랜치 전략
+
+기능마다 `main`에서 `feature/기능이름` 브랜치를 새로 만들어 작업 -> `git merge --no-ff`로 `main`에 병합
+
+-  `--no-ff`를 쓴 이유: 기능별 작업 단위가 커밋 그래프에 병합 지점(`Merge branch '...'`)으로 남아, 히스토리만 보고도 "이 기능이 어느 브랜치에서 작업됐는지"를 알 수 있게 하기 위해서입니다.
+
+### 여러 환경에서의 작업 (clone)
+
+코디세이 캐빈에서 작업을 진행했기 때문에, 해당 과제를 여러 대의 컴퓨터를 오가며 진행해서, 새로운 환경에서 작업을 시작할 때마다 `git clone https://github.com/ji-min0/codyssey_w2.git`으로 저장소를 새로 받아온 뒤 이어서 작업했습니다.
+
+![git clone](docs/screenshots/git_clone.png)
+
+
+### 커밋 로그 (`git log --oneline --graph`) 
+
+리드미 작성 기준 총 26개 커밋(병합 커밋 포함, `git log --oneline | wc -l` 기준)이 쌓여 있으며, 기능마다 브랜치 생성 후 병합한 기록을 위 로그에서 확인할 수 있습니다. 이후 커밋 혹은 머지 기록이 추가될 수 있으나, 최신화 반영은 하지 않을 것입니다.
+
+
+![git log graph](docs/screenshots/git_log_graph.png)
+
+하단의 텍스트 박스는 네이토 평가를 위한 것입니다.
+
+```
+* 1f16ab6 (HEAD -> docs/eval-improvements, origin/main, origin/HEAD, main) docs: 잘못된 입력 처리 스크린샷 추가
+* 3d9b437 docs: 실행 화면 및 개발 환경 스크린샷 추가
+*   54bd5c7 Merge branch 'docs/readme'
+|\
+| * a3b64cb docs: README 작성
+|/
+*   af2862f Merge branch 'feature/score'
+|\
+| * 4c50283 feat: 점수 확인 기능 구현
+|/
+*   c5482e7 Merge branch 'feature/quiz-list'
+|\
+| * 148bb7e feat: 퀴즈 목록 기능 구현
+|/
+*   727c6ee Merge branch 'feature/quiz-add'
+|\
+| * f60de83 feat: 퀴즈 추가 기능 구현
+| * b4625d1 fix: 최고 점수 갱신 메시지 오타 수정
+|/
+*   cf619d6 Merge branch 'feature/quiz-play'
+|\
+| * 92790f5 feat: 퀴즈 풀기 기능 구현
+|/
+*   6c77bc2 Merge branch 'feature/state-io'
+|\
+| * a95cf3c chore: state.json을 .gitignore에 추가
+| * e85e159 feat: state.json 저장/불러오기 기능 구현
+| * ae676e4 feat: Quiz 클래스에 JSON 변환 메서드 추가
+|/
+*   57bb447 Merge branch 'feature/quiz-data'
+|\
+| * bbf5e2c feat: 기본 퀴즈 데이터 작성
+|/
+*   c713ddb Merge branch 'feature/quiz-class'
+|\
+| * 0afde30 feat: Quiz 클래스 작성
+|/
+*   3ee2b2c Merge branch 'feature/menu'
+|\
+| * a66860c feat: 메뉴 출력 및 선택 루프 구현
+|/
+* 1d4e266 init: 프로젝트 초기 설정
+```
+
+
 ## 실행 화면
 
 | 메뉴 | 퀴즈 풀기 |
@@ -98,9 +200,6 @@ codyssey_w2/
 
 범위 밖 숫자(`9`), 숫자 변환 실패(`a`), 빈 입력, `Ctrl+C` 순으로 안내 메시지 출력 후 재입력 또는 안전 종료되는 것을 확인할 수 있습니다.
 
-### Git 커밋 히스토리
-
-![git log graph](docs/screenshots/git_log_graph.png)
 
 ## 개발 환경
 
