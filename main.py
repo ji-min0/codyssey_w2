@@ -1,5 +1,6 @@
 import json
 import os
+import random
 
 from quiz import Quiz
 from quiz_data import get_default_quizzes
@@ -117,11 +118,14 @@ class QuizGame:
             print("\n[안내] 등록된 퀴즈가 없습니다.\n")
             return
 
-        total = len(self.quizzes)
+        quizzes_to_play = list(self.quizzes)
+        random.shuffle(quizzes_to_play)
+
+        total = len(quizzes_to_play)
         print(f"\n[시작] 퀴즈를 시작합니다! (총 {total}문제)\n")
 
         correct_count = 0
-        for index, quiz in enumerate(self.quizzes, start=1):
+        for index, quiz in enumerate(quizzes_to_play, start=1):
             print("-" * 40)
             quiz.display(index)
             print()
