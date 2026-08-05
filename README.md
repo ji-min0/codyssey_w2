@@ -118,10 +118,19 @@ codyssey_w2/
 
 ### 여러 환경에서의 작업 (clone)
 
-코디세이 캐빈에서 작업을 진행했기 때문에, 해당 과제를 여러 대의 컴퓨터를 오가며 진행해서, 새로운 환경에서 작업을 시작할 때마다 `git clone https://github.com/ji-min0/codyssey_w2.git`으로 저장소를 새로 받아온 뒤 이어서 작업했습니다.
+코디세이 캐빈에서 작업을 진행했기 때문에, 해당 과제를 여러 대의 컴퓨터를 오가며 진행하였습니다. 따라서 새로운 환경에서 작업을 시작할 때마다 `git clone https://github.com/ji-min0/codyssey_w2.git`으로 저장소를 새로 받아온 뒤 이어서 작업했습니다.
 
 ![git clone](docs/screenshots/git_clone.png)
 
+### GitHub에서 병합 후 로컬 동기화 (pull)
+
+지금까지는 로컬에서 브랜치를 만들고 바로 `merge`해왔기 때문에 `pull`을 쓸 일이 없었습니다. 하지만 pull을 한 번 이상 사용해야 한다는 제약사항을 위해 이 커밋(`docs/eval-improvements`)은 일부러 GitHub 웹에서 PR을 만들어 merge한 뒤, 로컬 `main`에서 그 결과를 받아오는 방식으로 진행해 `pull`을 실습했습니다.
+
+- `git pull`: 원격(`origin/main`)에 GitHub에서 병합한 커밋을 로컬 `main`으로 받아옵니다.
+- `git fetch --prune`: PR을 merge하면서 GitHub에서 `docs/eval-improvements` 브랜치를 삭제했는데, 로컬에는 그 브랜치를 가리키는 원격 추적 참조(`origin/docs/eval-improvements`)가 그대로 남아있습니다. `--prune` 옵션으로 원격에 더 이상 없는 이 참조를 정리했습니다.
+- `git branch -d docs/eval-improvements`: 이제 필요 없어진 로컬 브랜치를 삭제합니다. `-d`는 해당 브랜치가 `main`에 이미 병합된 경우에만 삭제를 허용하는 안전한 옵션이라, 병합 안 된 작업이 실수로 삭제될 위험이 없습니다.
+
+![git pull, fetch --prune, branch -d](docs/screenshots/git_pull_fetch_branch_d.png)
 
 ### 커밋 로그 (`git log --oneline --graph`) 
 
